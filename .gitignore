@@ -215,3 +215,4 @@ project/plugins/project/
 .cache
 .lib/
 
+/data/
