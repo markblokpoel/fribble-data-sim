@@ -16,12 +16,15 @@ case class Agent(representations: Seq[Representation],
         representations(repId).transform(t)
       }
     val discernedRepresentations =
-      for(i <- transformedRepresentations.indices) yield {
-        if(transformedRepresentations.forall(_.lDistance(transformedRepresentations(i)) >= discernabilityThreshold))
+      // optimization for special case where discernabilityThreshold is zero
+      if(discernabilityThreshold == 0) transformedRepresentations else {
+        for(i <- transformedRepresentations.indices) yield {
+          if(transformedRepresentations.forall(_.lDistance(transformedRepresentations(i)) >= discernabilityThreshold))
           // i-th transformed representation is sufficiently distinct from rest
           transformedRepresentations(i)
-        else
-          representations(i)
+            else
+            representations(i)
+        }
       }
     Agent(discernedRepresentations, effort)
   }

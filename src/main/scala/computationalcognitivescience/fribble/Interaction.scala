@@ -41,9 +41,6 @@ class Interaction(private var agentA: Agent,
   override def hasNext: Boolean = round <= maxRounds
 
   override def next(): Pair = {
-    print(s"\rRound $round/$maxRounds")
-
-
     val curAgentA = agentA
     val curAgentB = agentB
     agentA = agentA.transform(transformations)
