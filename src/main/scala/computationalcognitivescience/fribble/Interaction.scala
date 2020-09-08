@@ -43,8 +43,9 @@ class Interaction(private var agentA: Agent,
   override def next(): Pair = {
     val curAgentA = agentA
     val curAgentB = agentB
-    agentA = agentA.transform(transformations)
-    agentB = agentB.transform(transformations)
+    val t = transformations
+    agentA = agentA.transform(t)
+    agentB = agentB.transform(t)
     round += 1
     Pair(curAgentA, curAgentB)
   }

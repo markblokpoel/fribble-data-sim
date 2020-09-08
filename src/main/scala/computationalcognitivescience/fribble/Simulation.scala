@@ -7,16 +7,16 @@ import scala.collection.parallel.CollectionConverters._
 
 object Simulation extends App {
   val nrRepresentations = 16
-  val representationLength = 15
+  val representationLength = 14
   val maxRounds = 6
   val featureLength = 4
   val featureDistortion = 0.0
   val featureOverlap = true
   val sampleSize = 10 // Samples per condition
 
-  val asymmetry = Set(0.0, 0.25, 0.5, 0.75)
-  val effortA = Set(0.0, 0.2, 0.5, 0.9)
-  val effortB = Set(0.0, 0.2, 0.5, 0.9)
+  val asymmetry = Set(0.25, 0.5, 0.75)
+  val effortA = Set(0.9)
+  val effortB = Set(0.9)
   val discernabilityThreshold = Set(0)
   val convergenceProbability = Set(0.1, 0.2, 0.3)
 
@@ -60,7 +60,7 @@ object Simulation extends App {
 //  }).toMap
 
   // Write to files
-  val dsf = new File("data/data_similarities_v3.csv")
+  val dsf = new File("data/data_similarities_v4_small.csv")
   val dswriter = CSVWriter.open(dsf)
 
   dswriter.writeRow(Seq(
@@ -113,7 +113,7 @@ object Simulation extends App {
   }
   dswriter.close()
 
-  val dff = new File("data/data_features_v3.csv")
+  val dff = new File("data/data_features_v4_small.csv")
   val dfwriter = CSVWriter.open(dff)
 
   val nrFeatures = data.head._2._2.head.a.representations.head.deriveFeatures.length
