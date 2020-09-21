@@ -3,22 +3,37 @@ package computationalcognitivescience.fribble
 import scala.util.Random
 
 case class Representation(content: String,
-                          featureLength: Int = 3,
-                          featureDistortion: Double = 0.0,
-                          featuresOverlap: Boolean = false,
-                          brainVoxelCount: Int = 10,
-                          brainCompressionRatio: Int = 50,
-                          brainNoiseRatio: Double = 0.0) {
+                          featureLength: Int,
+                          featureDistortion: Double,
+                          featuresOverlap: Boolean,
+                          brainVoxelCount: Int,
+                          brainCompressionRatio: Int,
+                          brainNoiseRatio: Double) {
   def head: Char = content.head
-  def tail: Representation = Representation(content.tail)
+
+  def tail: Representation = Representation(content.tail,
+    featureLength,
+    featureDistortion,
+    featuresOverlap,
+    brainVoxelCount,
+    brainCompressionRatio,
+    brainNoiseRatio)
+
   def isEmpty: Boolean = content.isEmpty
+
   def length: Int = content.length
 
   def transform(replacements: Map[Int, Char]): Representation = {
     val c = content.indices
-      .map(i => if(replacements.isDefinedAt(i)) replacements(i) else content(i))
+      .map(i => if (replacements.isDefinedAt(i)) replacements(i) else content(i))
       .mkString
-    Representation(c, featureLength, featureDistortion, featuresOverlap)
+    Representation(c,
+      featureLength,
+      featureDistortion,
+      featuresOverlap,
+      brainVoxelCount,
+      brainCompressionRatio,
+      brainNoiseRatio)
   }
 
   override def toString: String = content
@@ -28,11 +43,11 @@ case class Representation(content: String,
    */
   def deriveFeatures: List[Double] = {
     def groupBy(values: Seq[String]): Seq[String] = {
-      if(values.length<featureLength) Seq[String]()
+      if (values.length < featureLength) Seq[String]()
       else {
         val (first, tail) = values.splitAt(featureLength)
-        if(featuresOverlap)
-          groupBy(first.splitAt(first.length/2)._2 ++ tail) ++ Seq(first.mkString)
+        if (featuresOverlap)
+          groupBy(first.splitAt(first.length / 2)._2 ++ tail) ++ Seq(first.mkString)
         else
           groupBy(tail) ++ Seq(first.mkString)
       }
@@ -41,7 +56,7 @@ case class Representation(content: String,
     val seq = groupBy(content.map(_.toString)) // split into base groups
       .map(bitString => {
         bitString.map(bit => {
-          if(Random.nextDouble() >= featureDistortion) if(bit == '0') '1' else '0' // flip bit for distortion
+          if (Random.nextDouble() >= featureDistortion) if (bit == '0') '1' else '0' // flip bit for distortion
           else bit
         })
       })
@@ -57,22 +72,23 @@ case class Representation(content: String,
     val skipSize = skipTotal / brainVoxelCount
 
     def groupBy(value: String): List[String] = {
-      if(value.length<voxelSize) List[String]()
+      if (value.length < voxelSize) List[String]()
       else {
         val (voxel, _rest) = value.splitAt(voxelSize)
         val (_, rest) = _rest.splitAt(skipSize)
         groupBy(rest) ++ List(voxel.mkString)
       }
     }
+
     val voxels = groupBy(content)
       .map(bitString => {
         bitString.map(bit => {
-          if(Random.nextDouble() >= brainNoiseRatio) if(bit == '0') '1' else '0' // flip bit for distortion
+          if (Random.nextDouble() >= brainNoiseRatio) if (bit == '0') '1' else '0' // flip bit for distortion
           else bit
         })
       })
 
-    val maxVoxelValue = (0 until voxelSize).map(math.pow(2,_)).sum
+    val maxVoxelValue = (0 until voxelSize).map(math.pow(2, _)).sum
     val simulatedBrainData: List[Double] = voxels.map(Integer.parseInt(_, 2) / maxVoxelValue)
     simulatedBrainData
   }
@@ -100,8 +116,8 @@ case object Representation {
   )
 
   def randomTransformation(stringLength: Int, probability: Double, alphabet: Set[Char]): Map[Int, Char] = {
-    (for(i <- 0 until stringLength) yield
-      if(Random.nextDouble() <= probability) i -> alphabet.toList(Random.nextInt(alphabet.size))
+    (for (i <- 0 until stringLength) yield
+      if (Random.nextDouble() <= probability) i -> alphabet.toList(Random.nextInt(alphabet.size))
       else -1 -> 'a')
       .filter(_._1 >= 0)
       .toMap

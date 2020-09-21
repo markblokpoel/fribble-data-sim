@@ -7,12 +7,12 @@ import scala.collection.parallel.CollectionConverters._
 
 object Simulation extends App {
   val nrRepresentations = 16
-  val representationLength = 20
+  val representationLength = 50
   val maxRounds = 6
   val featureLength = 4
   val featureDistortion = 0.2
   val featureOverlap = true
-  val brainVoxelCount = 3
+  val brainVoxelCount = 10
   val brainCompressionRatio = 10
   val brainNoiseRatio = 0.0
   val sampleSize = 10 // Samples per condition
@@ -266,10 +266,14 @@ object Simulation extends App {
     val dialog = data(pairNr)._2
     val pars = data(pairNr)._1
 
-    val bPreA = dialog.head.a.representations(fribble).deriveSimulatedBrainData()
-    val bPreB = dialog.head.b.representations(fribble).deriveSimulatedBrainData()
-    val bPostA = dialog.last.a.representations(fribble).deriveSimulatedBrainData()
-    val bPostB = dialog.last.b.representations(fribble).deriveSimulatedBrainData()
+    val bPreA = dialog.head.a.representations(fribble).deriveSimulatedBrainData
+    val bPreB = dialog.head.b.representations(fribble).deriveSimulatedBrainData
+    val bPostA = dialog.last.a.representations(fribble).deriveSimulatedBrainData
+    val bPostB = dialog.last.b.representations(fribble).deriveSimulatedBrainData
+    println(dialog.head.a.representations(fribble))
+    println(bPreA)
+    println(dialog.last.a.representations(fribble))
+    println(bPostA)
 
     val rowA =
       Seq(
@@ -277,7 +281,7 @@ object Simulation extends App {
         "A",
         fribble
       ) ++
-        bPreA(fribble).toSeq ++ bPostA(fribble).toSeq ++
+        bPreA ++ bPostA ++
         Seq(
           pars.nrRepresentations,
           pars.representationLength,
@@ -301,7 +305,7 @@ object Simulation extends App {
         "B",
         fribble
       ) ++
-        bPreB(fribble).toSeq ++ bPostB(fribble).toSeq ++
+        bPreB ++ bPostB ++
         Seq(
           pars.nrRepresentations,
           pars.representationLength,

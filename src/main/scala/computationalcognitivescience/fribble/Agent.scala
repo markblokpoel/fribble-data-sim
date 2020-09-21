@@ -2,9 +2,9 @@ package computationalcognitivescience.fribble
 
 import scala.util.Random
 
-case class Agent(representations: Seq[Representation],
-                 effort: Double = 1.0,
-                 discernabilityThreshold: Int = 0) {
+case class Agent(representations: List[Representation],
+                 effort: Double,
+                 discernabilityThreshold: Int) {
 
   def transform(transformations: Map[Int, Map[Int, Option[Char]]]): Agent = {
     val transformedRepresentations =
@@ -26,7 +26,7 @@ case class Agent(representations: Seq[Representation],
             representations(i)
         }
       }
-    Agent(discernedRepresentations, effort)
+    Agent(discernedRepresentations.toList, effort, discernabilityThreshold)
   }
 
 
@@ -46,13 +46,13 @@ case object Agent {
   def randomBinary(nrRepresentations: Int,
                    strLength: Int,
                    effort: Double,
-                   featureLength: Int = 3,
-                   featureDistortion: Double = 0.0,
-                   featureOverlap: Boolean = false,
+                   featureLength: Int,
+                   featureDistortion: Double,
+                   featureOverlap: Boolean,
                    brainVoxelCount: Int,
                    brainCompressionRatio: Int,
                    brainNoiseRatio: Double,
-                   discernabilityThreshold: Int = 0): Agent = {
+                   discernabilityThreshold: Int): Agent = {
     val representations = List.tabulate(nrRepresentations)(_ => Representation.random(strLength, Set('0', '1'), featureLength, featureDistortion, featureOverlap, brainVoxelCount, brainCompressionRatio, brainNoiseRatio))
     Agent(representations, effort, discernabilityThreshold)
   }
