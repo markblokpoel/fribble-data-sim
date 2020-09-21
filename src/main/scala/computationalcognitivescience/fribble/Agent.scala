@@ -49,8 +49,11 @@ case object Agent {
                    featureLength: Int = 3,
                    featureDistortion: Double = 0.0,
                    featureOverlap: Boolean = false,
+                   brainVoxelCount: Int,
+                   brainCompressionRatio: Int,
+                   brainNoiseRatio: Double,
                    discernabilityThreshold: Int = 0): Agent = {
-    val representations = List.tabulate(nrRepresentations)(_ => Representation.random(strLength, Set('0', '1'), featureLength, featureDistortion, featureOverlap))
+    val representations = List.tabulate(nrRepresentations)(_ => Representation.random(strLength, Set('0', '1'), featureLength, featureDistortion, featureOverlap, brainVoxelCount, brainCompressionRatio, brainNoiseRatio))
     Agent(representations, effort, discernabilityThreshold)
   }
 
@@ -59,11 +62,14 @@ case object Agent {
            featureLength: Int,
            featureDistortion: Double,
            featureOverlap: Boolean,
+           brainVoxelCount: Int,
+           brainCompressionRatio: Int,
+           brainNoiseRatio: Double,
            asymmetry: Double,
            effortA: Double,
            effortB: Double,
            discernabilityThreshold: Int): Pair = {
-    val agentA = Agent.randomBinary(nrRepresentations, strLength, effortA, featureLength, featureDistortion, featureOverlap, discernabilityThreshold)
+    val agentA = Agent.randomBinary(nrRepresentations, strLength, effortA, featureLength, featureDistortion, featureOverlap, brainVoxelCount, brainCompressionRatio, brainNoiseRatio, discernabilityThreshold)
     val representationsA = agentA.representations
     val representationsB = representationsA.map(repr => {
       val content = repr.content.map(bit => {
@@ -71,7 +77,7 @@ case object Agent {
           if (bit == '0') '1' else '0'
         else bit
       })
-      Representation(content, repr.featureLength, repr.featureDistortion, repr.featuresOverlap)
+      Representation(content, repr.featureLength, repr.featureDistortion, repr.featuresOverlap, repr.brainVoxelCount, repr.brainCompressionRatio, repr.brainNoiseRatio)
     })
     Pair(Agent(representationsA, effortA, discernabilityThreshold), Agent(representationsB, effortB, discernabilityThreshold))
   }

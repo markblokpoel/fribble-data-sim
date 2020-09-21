@@ -5,7 +5,10 @@ import scala.util.Random
 case class Representation(content: String,
                           featureLength: Int = 3,
                           featureDistortion: Double = 0.0,
-                          featuresOverlap: Boolean = false) {
+                          featuresOverlap: Boolean = false,
+                          brainVoxelCount: Int = 10,
+                          brainCompressionRatio: Int = 50,
+                          brainNoiseRatio: Double = 0.0) {
   def head: Char = content.head
   def tail: Representation = Representation(content.tail)
   def isEmpty: Boolean = content.isEmpty
@@ -48,21 +51,34 @@ case class Representation(content: String,
     seq.map(_.doubleValue / max)
   }
 
-  private def min(a: Int, b: Int, c: Int): Int = math.min(math.min(a, b), c)
+  def deriveSimulatedBrainData: List[Double] = {
+    val skipTotal = math.ceil(math.log(brainCompressionRatio) / math.log(2)).toInt
+    val voxelSize = (content.length - skipTotal) / brainVoxelCount
+    val skipSize = skipTotal / brainVoxelCount
 
-  def lDistance(that: Representation): Int = {
-    if(this.isEmpty || that.isEmpty)
-      0
-    else if(this.head == that.head)
-      this.tail.lDistance(that.tail)
-    else {
-      1 + min(
-        this.lDistance(that.tail),
-        this.tail.lDistance(that),
-        this.tail.lDistance(that.tail)
-      )
+    def groupBy(value: String): List[String] = {
+      if(value.length<voxelSize) List[String]()
+      else {
+        val (voxel, _rest) = value.splitAt(voxelSize)
+        val (_, rest) = _rest.splitAt(skipSize)
+        groupBy(rest) ++ List(voxel.mkString)
+      }
     }
+    val voxels = groupBy(content)
+      .map(bitString => {
+        bitString.map(bit => {
+          if(Random.nextDouble() >= brainNoiseRatio) if(bit == '0') '1' else '0' // flip bit for distortion
+          else bit
+        })
+      })
+
+    val maxVoxelValue = (0 until voxelSize).map(math.pow(2,_)).sum
+    val simulatedBrainData: List[Double] = voxels.map(Integer.parseInt(_, 2) / maxVoxelValue)
+    simulatedBrainData
   }
+
+  def lDistance(that: Representation): Int =
+    Levenshtein.levenshtein(this.content.toList, that.content.toList)
 }
 
 case object Representation {
@@ -70,11 +86,17 @@ case object Representation {
              alphabet: Set[Char],
              featureLength: Int = 3,
              featureDistortion: Double = 0.0,
-             featureOverlap: Boolean = false): Representation = Representation(
+             featureOverlap: Boolean = false,
+             brainVoxelCount: Int,
+             brainCompressionRatio: Int,
+             brainNoiseRatio: Double): Representation = Representation(
     List.tabulate(length)(_ => alphabet.toList(Random.nextInt(alphabet.size))).mkString,
     featureLength,
     featureDistortion,
-    featureOverlap
+    featureOverlap,
+    brainVoxelCount,
+    brainCompressionRatio,
+    brainNoiseRatio
   )
 
   def randomTransformation(stringLength: Int, probability: Double, alphabet: Set[Char]): Map[Int, Char] = {

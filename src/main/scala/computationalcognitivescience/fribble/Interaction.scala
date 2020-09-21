@@ -8,7 +8,7 @@ class Interaction(private var agentA: Agent,
                   private val maxRounds: Int) extends Iterator[Pair] {
 
   var round = 1
-  private val e = 0.1
+  private val e = 0.0
   private val a = agentA.effort / (agentA.effort + agentB.effort + e)
   private val b = agentB.effort / (agentA.effort + agentB.effort + e)
 
